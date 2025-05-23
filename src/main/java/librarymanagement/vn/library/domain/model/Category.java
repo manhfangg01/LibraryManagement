@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.annotations.ManyToAny;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,9 +26,9 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-    private String authorName;
-    private String publishedDate;
+    private String name;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
 
     @ManyToMany(mappedBy = "categories")
     private List<Book> books;

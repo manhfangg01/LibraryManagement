@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Xác nhận xoá</title>
+  </head>
+  <body>
+    <h1>❗ Xác nhận xoá thể loại</h1>
+
+    <p>Bạn có chắc chắn muốn xoá thể loại:</p>
+    <ul>
+      <li><strong>ID:</strong> <span th:text="${category.id}"></span></li>
+      <li><strong>Tên:</strong> <span th:text="${category.name}"></span></li>
+      <li><strong>Mô tả:</strong> <span th:text="${category.description}"></span></li>
+    </ul>
+
+    <form th:action="@{/categories/delete}" method="post">
+      <input type="hidden" name="id" th:value="${category.id}" />
+      <button type="submit">✅ Xác nhận xoá</button>
+      <a href="/categories">❌ Huỷ</a>
+    </form>
+  </body>
+</html>

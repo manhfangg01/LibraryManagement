@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Danh sách sách</title>
+  </head>
+  <body>
+    <h1>📚 Danh sách sách</h1>
+    <div class="d-flex">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên sách</th>
+            <th>Tác giả</th>
+            <th>Thể loại</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="book : ${books}">
+            <td th:text="${book.id}">ID</td>
+            <td th:text="${book.title}">Tên</td>
+            <td th:text="${book.author}">Tác giả</td>
+            <td>
+              <ul>
+                <li th:each="cat : ${book.categories}" th:text="${cat.name}">Thể loại</li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button class="btn btn-primary">Tạo Book Mới</button>
+    </div>
+  </body>
+</html>
