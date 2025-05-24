@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import librarymanagement.vn.library.domain.model.Category;
+import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.CategoryService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class CategoryController {
     private final CategoryService categoryService;
+    private final BookService bookService;
 
-    public CategoryController(CategoryService categoryService) {
+    public CategoryController(CategoryService categoryService, BookService bookService) {
         this.categoryService = categoryService;
+        this.bookService = bookService;
     }
 
     @GetMapping("/categories")

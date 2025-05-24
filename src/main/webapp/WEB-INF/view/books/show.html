@@ -2,34 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <title>Danh sách sách</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: left;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+      .actions form {
+        margin: 0;
+      }
+      .btn {
+        padding: 6px 12px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        color: white;
+        border-radius: 4px;
+      }
+      .btn-edit {
+        background-color: #007bff;
+      }
+      .btn-delete {
+        background-color: #dc3545;
+      }
+      .btn-create {
+        background-color: #28a745;
+        margin-top: 10px;
+        display: inline-block;
+      }
+    </style>
   </head>
   <body>
     <h1>📚 Danh sách sách</h1>
-    <div class="d-flex">
-      <table border="1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên sách</th>
-            <th>Tác giả</th>
-            <th>Thể loại</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="book : ${books}">
-            <td th:text="${book.id}">ID</td>
-            <td th:text="${book.title}">Tên</td>
-            <td th:text="${book.author}">Tác giả</td>
-            <td>
-              <ul>
-                <li th:each="cat : ${book.categories}" th:text="${cat.name}">Thể loại</li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
-      <button class="btn btn-primary">Tạo Book Mới</button>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên sách</th>
+          <th>Tác giả</th>
+          <th>Thể loại</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="book : ${books}">
+          <td th:text="${book.id}">1</td>
+          <td th:text="${book.title}">Tên sách</td>
+          <td th:text="${book.authorName}">Tác giả</td>
+          <td>
+            <ul>
+              <li th:each="cat : ${book.categories}" th:text="${cat.name}">Thể loại</li>
+            </ul>
+          </td>
+          <td class="actions">
+            <a th:href="@{/books/edit/{id}(id=${book.id})}" class="btn btn-edit">✏️ Sửa</a>
+
+            <form th:action="@{/books/delete/{id}(id=${book.id})}" method="post" onsubmit="return confirm('Xác nhận xóa?')">
+              <input type="hidden" name="_method" value="delete" />
+              <button type="submit" class="btn btn-delete">🗑️ Xóa</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a th:href="@{/books/create}" class="btn btn-create">➕ Thêm sách mới</a>
   </body>
 </html>

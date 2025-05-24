@@ -1,0 +1,2 @@
+- Làm tính năng CRUD cho books
+- Sửa lại tính năng xóa của categories mỗi lần xóa sẽ tự động xóa trong tất cả các books chứa nó

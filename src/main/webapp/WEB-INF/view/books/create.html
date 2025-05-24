@@ -6,13 +6,17 @@
   <body>
     <h1>➕ Thêm sách mới</h1>
 
+    <div th:if="${ObjectExisted}">
+      <p th:text="${ObjectExisted}" style="color: red"></p>
+    </div>
+
     <form th:action="@{/books}" th:object="${book}" method="post">
       <label for="title">Tên sách:</label>
       <input type="text" id="title" th:field="*{title}" required />
       <br />
 
       <label for="author">Tác giả:</label>
-      <input type="text" id="author" th:field="*{author}" required />
+      <input type="text" id="authorName" th:field="*{authorName}" required />
       <br />
 
       <label>Thể loại:</label>
@@ -20,6 +24,10 @@
         <input type="checkbox" th:value="${cat.id}" th:field="*{categories}" />
         <span th:text="${cat.name}"></span><br />
       </div>
+
+      <label for="publishedDate">Ngày xuất bản:</label>
+      <input type="date" id="publishedDate" th:field="*{publishedDate}" required />
+      <br />
 
       <button type="submit">Lưu sách</button>
     </form>

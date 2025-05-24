@@ -6,14 +6,17 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Category;
+import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.repository.CategoryRepository;
 
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final BookRepository bookRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, BookRepository bookRepository) {
         this.categoryRepository = categoryRepository;
+        this.bookRepository = bookRepository;
     }
 
     public List<Category> fetchAllCategories() {
