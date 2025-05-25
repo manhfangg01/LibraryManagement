@@ -13,6 +13,7 @@
 
     <form th:action="@{/categories/edit}" th:object="${category}" method="post">
       <input type="hidden" th:field="*{id}" />
+      <!-- Bắt buộc phải có dòng này để khi gửi lên /edit có thể category mới có trường id-->
 
       <label for="name">Tên thể loại:</label>
       <input type="text" id="name" th:field="*{name}" required />

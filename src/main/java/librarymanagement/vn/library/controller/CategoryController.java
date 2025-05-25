@@ -66,7 +66,10 @@ public class CategoryController {
             model.addAttribute("newCategory", category); // giữ lại dữ liệu người dùng nhập
             return "/categories/edit";
         } else {
-            this.categoryService.saveCategory(category);
+            Category realCategory = this.categoryService.fetchCategoryById(category.getId()).get();
+            realCategory.setName(category.getName());
+            realCategory.setDescription(category.getDescription());
+            this.categoryService.saveCategory(realCategory);
         }
         return "redirect:/categories";
 
@@ -74,7 +77,7 @@ public class CategoryController {
 
     @GetMapping("/categories/delete/{id}")
     public String deleteCategory(@PathVariable("id") long id) {
-        categoryService.delete(id);
+        this.categoryService.delete(id);
         return "redirect:/categories";
     }
 

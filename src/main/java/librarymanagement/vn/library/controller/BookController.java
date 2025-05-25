@@ -63,18 +63,28 @@ public class BookController {
                 .orElseThrow(() -> new RuntimeException("Book not found"));
         model.addAttribute("book", book);
         model.addAttribute("id", id);
+
+        // Sửa chỗ này: truyền toàn bộ categories có sẵn
+        model.addAttribute("categories", categoryService.fetchAllCategories());
         return "/books/edit";
     }
 
-    @PutMapping("/books/edit")
+    @PostMapping("/books/edit")
     public String updateBook(@ModelAttribute("book") Book book, Model model) {
-        if (this.bookService.fetchBookByTitle(book.getTitle()).isPresent()) {
+        Optional<Book> existingBook = bookService.fetchBookById(book.getId());
+
+        if (existingBook.isPresent() && existingBook.get().getId() != book.getId()) {
             model.addAttribute("errors", "Đã tồn tại sách này rồi");
             model.addAttribute("book", book); // giữ lại dữ liệu người dùng nhập
-            return "/categories/create";
-        } else {
-            this.bookService.saveBook(book);
+            return "/books/edit";
         }
+        Book realBook = existingBook.get();
+        realBook.setAuthorName(book.getAuthorName());
+        realBook.setBorrows(book.getBorrows());
+        realBook.setCategories(book.getCategories());
+        realBook.setPublishedDate(book.getPublishedDate());
+        realBook.setTitle(book.getTitle());
+        bookService.saveBook(realBook); // phải gọi chỗ này
         return "redirect:/books";
     }
 

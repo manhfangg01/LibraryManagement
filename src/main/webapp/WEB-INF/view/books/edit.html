@@ -10,6 +10,8 @@
     </div>
 
     <form th:action="@{/books/edit}" th:object="${book}" method="post">
+      <input type="hidden" th:field="*{id}" />
+      <!-- Bắt buộc phải có dòng này để khi gửi lên /edit có thể book mới có trường id-->
       <label for="title">Tên sách:</label>
       <input type="text" id="title" th:field="*{title}" required />
       <br />

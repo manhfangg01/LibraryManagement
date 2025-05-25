@@ -2,9 +2,11 @@ package librarymanagement.vn.library.domain.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.model.Category;
 import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.repository.CategoryRepository;
@@ -36,7 +38,17 @@ public class CategoryService {
     }
 
     public void delete(long id) {
-        this.categoryRepository.deleteById(id);
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy category"));
+
+        // Gỡ category khỏi tất cả các book
+        for (Book book : category.getBooks()) {
+            book.getCategories().remove(category);
+            bookRepository.save(book); // Lưu lại từng book
+        }
+
+        // Xóa category
+        categoryRepository.delete(category);
     }
 
 }
