@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Danh sách thủ thư</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .actions a,
+      .actions form {
+        margin-right: 5px;
+        display: inline-block;
+      }
+
+      button {
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>👩‍💼 Danh sách thủ thư</h1>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên</th>
+          <th>Email</th>
+          <th>Vai trò</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="librarian : ${librarians}">
+          <td th:text="${librarian.id}">1</td>
+          <td th:text="${librarian.name}">Tên</td>
+          <td th:text="${librarian.email}">Email</td>
+          <td th:text="${librarian.role}">Vai trò</td>
+          <td class="actions">
+            <a th:href="@{/librarians/edit/{id}(id=${librarian.id})}">
+              <button>✏️ Sửa</button>
+            </a>
+
+            <form th:action="@{/librarians/delete/{id}(id=${librarian.id})}" method="post" onsubmit="return confirm('Xác nhận xóa thủ thư này?')">
+              <input type="hidden" name="_method" value="delete" />
+              <button type="submit">🗑️ Xóa</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br />
+    <a th:href="@{/librarians/create}">
+      <button>➕ Thêm thủ thư mới</button>
+    </a>
+  </body>
+</html>

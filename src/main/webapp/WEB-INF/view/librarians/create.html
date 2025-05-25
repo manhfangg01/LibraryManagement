@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Thêm thủ thư</title>
+  </head>
+  <body>
+    <h1>➕ Thêm thủ thư</h1>
+
+    <form th:action="@{/librarians/create}" th:object="${librarian}" method="post">
+      <label for="name">Tên:</label>
+      <input type="text" id="name" th:field="*{name}" required /><br />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" th:field="*{email}" required /><br />
+
+      <label for="password">Mật khẩu:</label>
+      <input type="password" id="password" th:field="*{password}" required /><br />
+
+      <label for="role">Vai trò:</label>
+      <input type="text" id="role" th:field="*{role}" required /><br />
+
+      <button type="submit">Lưu</button>
+    </form>
+
+    <a href="/librarians">← Quay lại</a>
+  </body>
+</html>
