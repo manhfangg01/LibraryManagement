@@ -2,7 +2,6 @@ package librarymanagement.vn.library;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 //disable security
 @SpringBootApplication(exclude = {

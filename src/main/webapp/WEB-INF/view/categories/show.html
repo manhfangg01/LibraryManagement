@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <title>Danh sách sách</title>
+    <meta charset="UTF-8" />
+    <title>📚 Danh sách thể loại</title>
   </head>
   <body>
     <h1>📚 Danh sách thể loại</h1>
-    <div class="d-flex">
-      <table border="1">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên thể loại</th>
-            <th>Mô tả</th>
-            <th colspan="2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="category : ${categories}">
-            <td th:text="${category.id}">ID</td>
-            <td th:text="${category.name}">Tên</td>
-            <td th:text="${category.description}">Mô tả</td>
-            <td>
-              <button>
-                <a th:href="@{/categories/edit/{id}(id=${category.id})}" class="btn btn-primary">Edit</a>
-              </button>
-              <button>
-                <a th:href="@{/categories/delete/{id}(id=${category.id})}" class="btn btn-primary">Delete</a>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
 
-      <button class="btn btn-primary"><a style="text-decoration: none" href="/categories/create/">Tạo thể loại Mới</a></button>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên thể loại</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="category : ${categories}">
+          <td th:text="${category.id}"></td>
+          <td th:text="${category.name}"></td>
+          <td>
+            <a th:href="@{'/categories/edit/' + ${category.id}}">✏️ Sửa</a> |
+            <form th:action="@{'/categories/delete/' + ${category.id}}" method="post" style="display: inline">
+              <button type="submit">🗑️ Xoá</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 16px">
+      <a th:if="${currentPage > 1}" th:href="@{/categories(page=${currentPage - 1}, size=${sizePerPage})}">⬅️ Trước</a>
+      <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
+      <a th:if="${currentPage < totalPages}" th:href="@{/categories(page=${currentPage + 1}, size=${sizePerPage})}">Tiếp ➡️</a>
     </div>
+
+    <br />
+    <a href="/categories/create">➕ Thêm thể loại mới</a>
   </body>
 </html>

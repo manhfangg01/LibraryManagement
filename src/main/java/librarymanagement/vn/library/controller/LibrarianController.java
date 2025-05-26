@@ -3,6 +3,7 @@ package librarymanagement.vn.library.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import librarymanagement.vn.library.domain.model.Librarian;
 import librarymanagement.vn.library.domain.service.LibrarianService;
 import org.springframework.web.bind.annotation.PostMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
@@ -26,10 +27,22 @@ public class LibrarianController {
     }
 
     @GetMapping("/librarians")
-    public String getAllLibrarians(Model model) {
-        List<Librarian> librarians = this.librarianService.fetchAllLibrarian();
+    public String getAllLibrarians(
+            Model model,
+            @RequestParam("page") Optional<Integer> optionalPage,
+            @RequestParam("size") Optional<Integer> optionalSize) {
+        int page = optionalPage.orElse(1); // bắt đầu từ 1
+        int size = optionalSize.orElse(5);
+
+        Page<Librarian> pageLibrarians = librarianService.fetchAllLibrariansWithPagination(page, size);
+        List<Librarian> librarians = pageLibrarians.getContent();
+
         model.addAttribute("librarians", librarians);
-        return "/librarians/show";
+        model.addAttribute("currentPage", page);
+        model.addAttribute("sizePerPage", size);
+        model.addAttribute("totalPages", pageLibrarians.getTotalPages());
+
+        return "librarians/show"; // trang hiển thị danh sách thủ thư
     }
 
     @GetMapping("/librarians/create")

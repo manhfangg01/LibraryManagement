@@ -1,19 +1,19 @@
 package librarymanagement.vn.library.controller;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
-import librarymanagement.vn.library.domain.model.Member;
 import librarymanagement.vn.library.domain.model.Member;
 import librarymanagement.vn.library.domain.service.MemberService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MemberController {
@@ -24,9 +24,22 @@ public class MemberController {
     }
 
     @GetMapping("/members")
-    public String getAllMember(Model model) {
-        model.addAttribute("members", this.memberService.fetchAllMember());
-        return "members/show";
+    public String getAllMembers(
+            Model model,
+            @RequestParam("page") Optional<Integer> optionalPage,
+            @RequestParam("size") Optional<Integer> optionalSize) {
+        int page = optionalPage.orElse(1);
+        int size = optionalSize.orElse(5);
+
+        Page<Member> pageMembers = memberService.fetchAllMembersWithPagination(page, size);
+        List<Member> members = pageMembers.getContent();
+
+        model.addAttribute("members", members);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("sizePerPage", size);
+        model.addAttribute("totalPages", pageMembers.getTotalPages());
+
+        return "members/show"; // trang hiển thị danh sách members
     }
 
     @GetMapping("/members/create")

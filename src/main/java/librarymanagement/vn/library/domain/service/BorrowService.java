@@ -3,8 +3,12 @@ package librarymanagement.vn.library.domain.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.model.Borrow;
 import librarymanagement.vn.library.domain.repository.BorrowRepository;
 
@@ -46,5 +50,10 @@ public class BorrowService {
             throw new RuntimeException("Lượt mượn này không tồn tại");
         }
         this.borrowRepository.delete(optionalBorrow.get());
+    }
+
+    public Page<Borrow> fetchAllBorrowsWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return this.borrowRepository.findAll(pageable);
     }
 }

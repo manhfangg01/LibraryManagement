@@ -1,3 +1,7 @@
-
+- Tính năng tìm kiếm, filter, sorting (Specification)
+- Phân trang pagination
+- Dùng Spring validation
+- update file
+- Thống kê số liệu
+- Đăng nhập và phân quyền
 - Phân trang GetMapping, Specification
-- CRUD Borrow, , Member

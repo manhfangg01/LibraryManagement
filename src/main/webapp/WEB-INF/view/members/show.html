@@ -1,46 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
+    <meta charset="UTF-8" />
     <title>Danh sách thành viên</title>
   </head>
   <body>
     <h1>👥 Danh sách thành viên</h1>
 
-    <table border="1">
+    <table border="1" cellpadding="8" cellspacing="0">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Tên</th>
+          <th>Họ tên</th>
           <th>Email</th>
-          <th>SĐT</th>
+          <th>Điện thoại</th>
           <th>Địa chỉ</th>
-          <th>Ngày tham gia</th>
-          <th>Loại</th>
+          <th>Ngày đăng ký</th>
+          <th>Loại thành viên</th>
           <th>Trạng thái</th>
           <th>Hành động</th>
         </tr>
       </thead>
       <tbody>
-        <tr th:each="m : ${members}">
-          <td th:text="${m.id}"></td>
-          <td th:text="${m.name}"></td>
-          <td th:text="${m.email}"></td>
-          <td th:text="${m.phone}"></td>
-          <td th:text="${m.address}"></td>
-          <td th:text="${m.membershipDate}"></td>
-          <td th:text="${m.membershipType}"></td>
-          <td th:text="${m.status ? 'Hoạt động' : 'Không hoạt động'}"></td>
+        <tr th:each="member : ${members}">
+          <td th:text="${member.name}">Tên</td>
+          <td th:text="${member.email}">Email</td>
+          <td th:text="${member.phone}">SĐT</td>
+          <td th:text="${member.address}">Địa chỉ</td>
+          <td th:text="${member.membershipDate}">Ngày</td>
+          <td th:text="${member.membershipType}">Loại</td>
+          <td th:text="${member.status ? 'Hoạt động' : 'Tạm khóa'}">Trạng thái</td>
           <td>
-            <button><a th:href="@{/members/edit/{id}(id=${m.id})}">Sửa</a></button>
-            <form th:action="@{/members/delete/{id}(id=${m.id})}" method="post" style="display: inline">
-              <input type="hidden" name="_method" value="delete" />
-              <button type="submit" onclick="return confirm('Xác nhận xóa?')">Xóa</button>
+            <a th:href="@{'/members/edit/' + ${member.id}}">✏️ Sửa</a> |
+            <form th:action="@{'/members/delete/' + ${member.id}}" method="post" style="display: inline">
+              <button type="submit" onclick="return confirm('Bạn chắc chắn muốn xóa?')">🗑️ Xóa</button>
             </form>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <a th:href="@{/members/create}">➕ Thêm thành viên</a>
+    <br />
+
+    <!-- Phân trang -->
+    <div>
+      <a th:if="${currentPage > 1}" th:href="@{/members(page=${currentPage - 1}, size=${sizePerPage})}">⬅️ Trước</a>
+      <span>Trang <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">1</span></span>
+      <a th:if="${currentPage < totalPages}" th:href="@{/members(page=${currentPage + 1}, size=${sizePerPage})}">Tiếp ➡️</a>
+    </div>
+
+    <br />
+    <a href="/members/create">➕ Thêm thành viên mới</a>
   </body>
 </html>

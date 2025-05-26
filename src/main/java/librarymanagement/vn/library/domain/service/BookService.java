@@ -2,22 +2,21 @@ package librarymanagement.vn.library.domain.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.repository.BookRepository;
-import librarymanagement.vn.library.domain.repository.CategoryRepository;
 
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final CategoryRepository categoryRepository;
 
-    public BookService(BookRepository bookRepository, CategoryRepository categoryRepository) {
+    public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.categoryRepository = categoryRepository;
     }
 
     public List<Book> fetchAllBooks() {
@@ -38,6 +37,11 @@ public class BookService {
 
     public void deleteById(long id) {
         this.bookRepository.deleteById(id);
+    }
+
+    public Page<Book> fetchAllBooksWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return this.bookRepository.findAll(pageable);
     }
 
 }

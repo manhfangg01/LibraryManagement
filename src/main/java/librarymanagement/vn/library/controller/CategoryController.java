@@ -1,29 +1,44 @@
 package librarymanagement.vn.library.controller;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import librarymanagement.vn.library.domain.model.Category;
-import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.CategoryService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class CategoryController {
     private final CategoryService categoryService;
-    private final BookService bookService;
 
-    public CategoryController(CategoryService categoryService, BookService bookService) {
+    public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
-        this.bookService = bookService;
     }
 
     @GetMapping("/categories")
-    public String getAllCategories(Model model) {
-        model.addAttribute("categories", this.categoryService.fetchAllCategories());
-        return "/categories/show";
+    public String getAllCategories(
+            Model model,
+            @RequestParam("page") Optional<Integer> optionalPage,
+            @RequestParam("size") Optional<Integer> optionalSize) {
+        int page = optionalPage.orElse(1);
+        int size = optionalSize.orElse(5);
+
+        Page<Category> pageCategories = categoryService.fetchAllCategoriesWithPagination(page, size);
+        List<Category> categories = pageCategories.getContent();
+
+        model.addAttribute("categories", categories);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("sizePerPage", size);
+        model.addAttribute("totalPages", pageCategories.getTotalPages());
+
+        return "categories/show"; // trang HTML hiển thị danh sách
     }
 
     @GetMapping("/categories/create")

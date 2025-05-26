@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Book;
@@ -49,6 +52,11 @@ public class CategoryService {
 
         // Xóa category
         categoryRepository.delete(category);
+    }
+
+    public Page<Category> fetchAllCategoriesWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size); // page - 1 vì PageRequest bắt đầu từ 0
+        return categoryRepository.findAll(pageable);
     }
 
 }

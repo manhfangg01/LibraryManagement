@@ -1,21 +1,26 @@
 package librarymanagement.vn.library.controller;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import librarymanagement.vn.library.domain.model.Book;
+import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.CategoryService;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class BookController {
+
     private final BookService bookService;
     private final CategoryService categoryService;
 
@@ -25,9 +30,23 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public String getBooks(Model model) {
-        model.addAttribute("books", this.bookService.fetchAllBooks());
-        return "/books/show";
+    public String getBooks(Model model, @RequestParam("page") Optional<String> optionalPage,
+            @RequestParam Optional<String> optionalSize) {
+        int page = 1;
+        int size = 5;
+        if (optionalPage.isPresent()) {
+            page = Integer.parseInt(optionalPage.get());
+        }
+        if (optionalSize.isPresent()) {
+            size = Integer.parseInt(optionalSize.get());
+        }
+        Page<Book> pageBooks = this.bookService.fetchAllBooksWithPagination(page, size);
+        List<Book> books = pageBooks.getContent();
+        model.addAttribute("books", books);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("sizePerPage", size);
+        model.addAttribute("totalPages", pageBooks.getTotalPages());
+        return "books/show";
     }
 
     @GetMapping("/books/create")

@@ -3,6 +3,9 @@ package librarymanagement.vn.library.domain.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Librarian;
@@ -40,6 +43,11 @@ public class LibrarianService {
 
     public void delete(Librarian librarian) {
         this.librarianRepository.delete(librarian);
+    }
+
+    public Page<Librarian> fetchAllLibrariansWithPagination(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size); // page bắt đầu từ 0
+        return librarianRepository.findAll(pageable);
     }
 
 }
