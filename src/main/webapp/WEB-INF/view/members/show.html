@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Danh sách thành viên</title>
+  </head>
+  <body>
+    <h1>👥 Danh sách thành viên</h1>
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên</th>
+          <th>Email</th>
+          <th>SĐT</th>
+          <th>Địa chỉ</th>
+          <th>Ngày tham gia</th>
+          <th>Loại</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="m : ${members}">
+          <td th:text="${m.id}"></td>
+          <td th:text="${m.name}"></td>
+          <td th:text="${m.email}"></td>
+          <td th:text="${m.phone}"></td>
+          <td th:text="${m.address}"></td>
+          <td th:text="${m.membershipDate}"></td>
+          <td th:text="${m.membershipType}"></td>
+          <td th:text="${m.status ? 'Hoạt động' : 'Không hoạt động'}"></td>
+          <td>
+            <button><a th:href="@{/members/edit/{id}(id=${m.id})}">Sửa</a></button>
+            <form th:action="@{/members/delete/{id}(id=${m.id})}" method="post" style="display: inline">
+              <input type="hidden" name="_method" value="delete" />
+              <button type="submit" onclick="return confirm('Xác nhận xóa?')">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <a th:href="@{/members/create}">➕ Thêm thành viên</a>
+  </body>
+</html>

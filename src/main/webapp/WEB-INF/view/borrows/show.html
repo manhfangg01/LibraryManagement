@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Danh sách phiếu mượn</title>
+  </head>
+  <body>
+    <h1>📋 Danh sách phiếu mượn</h1>
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên sách</th>
+          <th>Người mượn</th>
+          <th>Thủ thư</th>
+          <th>Ngày mượn</th>
+          <th>Hạn trả</th>
+          <th>Ngày trả</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="borrow : ${borrows}">
+          <td th:text="${borrow.id}">1</td>
+          <td th:text="${borrow.book.title}">Tên sách</td>
+          <td th:text="${borrow.member.name}">Người mượn</td>
+          <td th:text="${borrow.librarian.name}">Thủ thư</td>
+          <td th:text="${borrow.borrowDate}">2024-01-01</td>
+          <td th:text="${borrow.dueDate}">2024-01-07</td>
+          <td th:text="${borrow.returnDate}">2024-01-05</td>
+          <td th:text="${borrow.status}">Đã trả</td>
+          <td>
+            <button><a th:href="@{/borrows/edit/{id}(id=${borrow.id})}">✏️ Sửa</a></button>
+            <form th:action="@{/borrows/delete/{id}(id=${borrow.id})}" method="post" style="display: inline" onsubmit="return confirm('Xác nhận xóa phiếu này?')">
+              <input type="hidden" name="_method" value="delete" />
+              <button type="submit">🗑️ Xóa</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br />
+    <a href="/borrows/create">➕ Thêm phiếu mượn mới</a>
+  </body>
+</html>

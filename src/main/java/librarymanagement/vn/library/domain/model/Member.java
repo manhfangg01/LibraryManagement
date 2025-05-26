@@ -29,7 +29,7 @@ public class Member {
     private String email;
     private String phone;
     private String address;
-    private String memebershipDate;
+    private String membershipDate;
     private String membershipType;
     private boolean status;
 

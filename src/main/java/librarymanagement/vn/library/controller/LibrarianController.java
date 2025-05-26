@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import librarymanagement.vn.library.domain.model.Librarian;
 import librarymanagement.vn.library.domain.service.LibrarianService;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
+
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class LibrarianController {
@@ -67,7 +65,7 @@ public class LibrarianController {
     @PostMapping("/librarians/delete/{id}")
     public String deleteLibrarian(@PathVariable("id") long id) {
         if (this.librarianService.fetchLibrarianById(id).isEmpty()) {
-            throw new RuntimeException("book not found");
+            throw new RuntimeException("librarian not found");
         }
         this.librarianService.delete(this.librarianService.fetchLibrarianById(id).get());
         return "redirect:/librarians";
