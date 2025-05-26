@@ -13,15 +13,19 @@ import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.model.Category;
 import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.repository.CategoryRepository;
+import librarymanagement.vn.library.domain.service.specification.CategorySpecs;
 
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final BookRepository bookRepository;
+    private final CategorySpecs categorySpecs;
 
-    public CategoryService(CategoryRepository categoryRepository, BookRepository bookRepository) {
+    public CategoryService(CategoryRepository categoryRepository, BookRepository bookRepository,
+            CategorySpecs categorySpecs) {
         this.categoryRepository = categoryRepository;
         this.bookRepository = bookRepository;
+        this.categorySpecs = categorySpecs;
     }
 
     public List<Category> fetchAllCategories() {
@@ -54,9 +58,12 @@ public class CategoryService {
         categoryRepository.delete(category);
     }
 
-    public Page<Category> fetchAllCategoriesWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size); // page - 1 vì PageRequest bắt đầu từ 0
+    public Page<Category> fetchAllCategoriesWithPagination(Pageable pageable) {
         return categoryRepository.findAll(pageable);
+    }
+
+    public Page<Category> fetchAllCategoriesWithPaginationAndNameSpecification(Pageable pageable, String name) {
+        return this.categoryRepository.findAll(this.categorySpecs.nameLike(name), pageable);
     }
 
 }

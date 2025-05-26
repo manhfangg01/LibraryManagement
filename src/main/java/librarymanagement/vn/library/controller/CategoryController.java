@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +28,20 @@ public class CategoryController {
     public String getAllCategories(
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
-            @RequestParam("size") Optional<Integer> optionalSize) {
+            @RequestParam("size") Optional<Integer> optionalSize,
+            @RequestParam("name") Optional<String> optionalName) {
         int page = optionalPage.orElse(1);
         int size = optionalSize.orElse(5);
+        String name = optionalName.orElse("");
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Category> pageCategories;
 
-        Page<Category> pageCategories = categoryService.fetchAllCategoriesWithPagination(page, size);
+        if (name.equals("")) {
+            pageCategories = categoryService.fetchAllCategoriesWithPagination(pageable);
+        } else {
+            pageCategories = categoryService.fetchAllCategoriesWithPaginationAndNameSpecification(pageable,
+                    name);
+        }
         List<Category> categories = pageCategories.getContent();
 
         model.addAttribute("categories", categories);
@@ -38,7 +49,7 @@ public class CategoryController {
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageCategories.getTotalPages());
 
-        return "categories/show"; // trang HTML hiển thị danh sách
+        return "categories/show";
     }
 
     @GetMapping("/categories/create")

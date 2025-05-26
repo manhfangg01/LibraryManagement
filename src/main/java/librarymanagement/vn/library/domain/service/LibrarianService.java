@@ -10,14 +10,17 @@ import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Librarian;
 import librarymanagement.vn.library.domain.repository.LibrarianRepository;
+import librarymanagement.vn.library.domain.service.specification.LibrarianSpecs;
 
 @Service
 public class LibrarianService {
 
     private final LibrarianRepository librarianRepository;
+    private final LibrarianSpecs librarianSpecs;
 
-    public LibrarianService(LibrarianRepository librarianRepository) {
+    public LibrarianService(LibrarianRepository librarianRepository, LibrarianSpecs librarianSpecs) {
         this.librarianRepository = librarianRepository;
+        this.librarianSpecs = librarianSpecs;
     }
 
     public List<Librarian> fetchAllLibrarian() {
@@ -45,9 +48,12 @@ public class LibrarianService {
         this.librarianRepository.delete(librarian);
     }
 
-    public Page<Librarian> fetchAllLibrariansWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size); // page bắt đầu từ 0
+    public Page<Librarian> fetchAllLibrariansWithPagination(Pageable pageable) {
         return librarianRepository.findAll(pageable);
+    }
+
+    public Page<Librarian> fetchAllLibrariansWithPaginationAndNameSpecification(Pageable pageable, String name) {
+        return this.librarianRepository.findAll(this.librarianSpecs.nameLike(name), pageable);
     }
 
 }

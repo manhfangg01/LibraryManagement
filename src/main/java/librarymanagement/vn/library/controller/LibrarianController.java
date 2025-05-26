@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,11 +32,19 @@ public class LibrarianController {
     public String getAllLibrarians(
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
-            @RequestParam("size") Optional<Integer> optionalSize) {
+            @RequestParam("size") Optional<Integer> optionalSize,
+            @RequestParam("name") Optional<String> optionalName) {
         int page = optionalPage.orElse(1); // bắt đầu từ 1
         int size = optionalSize.orElse(5);
-
-        Page<Librarian> pageLibrarians = librarianService.fetchAllLibrariansWithPagination(page, size);
+        String name = optionalName.orElse("");
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Librarian> pageLibrarians;
+        if (name.equals("")) {
+            pageLibrarians = this.librarianService.fetchAllLibrariansWithPagination(pageable);
+        } else {
+            pageLibrarians = librarianService.fetchAllLibrariansWithPaginationAndNameSpecification(pageable,
+                    name);
+        }
         List<Librarian> librarians = pageLibrarians.getContent();
 
         model.addAttribute("librarians", librarians);

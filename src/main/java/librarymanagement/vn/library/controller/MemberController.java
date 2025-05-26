@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -27,11 +29,20 @@ public class MemberController {
     public String getAllMembers(
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
-            @RequestParam("size") Optional<Integer> optionalSize) {
+            @RequestParam("size") Optional<Integer> optionalSize,
+            @RequestParam("name") Optional<String> optionalName) {
         int page = optionalPage.orElse(1);
         int size = optionalSize.orElse(5);
+        String name = optionalName.orElse("");
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Member> pageMembers = memberService.fetchAllMembersWithPagination(page, size);
+        Page<Member> pageMembers;
+        if (name.equals("")) {
+            pageMembers = this.memberService.fetchAllMembersWithPagination(pageable);
+        } else {
+            pageMembers = this.memberService.fetchAllMembersWithPaginationAndNameSpecification(pageable, name);
+
+        }
         List<Member> members = pageMembers.getContent();
 
         model.addAttribute("members", members);

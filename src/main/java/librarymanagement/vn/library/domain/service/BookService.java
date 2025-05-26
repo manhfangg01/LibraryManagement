@@ -10,13 +10,16 @@ import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.repository.BookRepository;
+import librarymanagement.vn.library.domain.service.specification.BookSpecs;
 
 @Service
 public class BookService {
+    private final BookSpecs bookSpecs;
     private final BookRepository bookRepository;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, BookSpecs bookSpecs) {
         this.bookRepository = bookRepository;
+        this.bookSpecs = bookSpecs;
     }
 
     public List<Book> fetchAllBooks() {
@@ -39,9 +42,13 @@ public class BookService {
         this.bookRepository.deleteById(id);
     }
 
-    public Page<Book> fetchAllBooksWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+    public Page<Book> fetchAllBooksWithPagination(Pageable pageable) {
+
         return this.bookRepository.findAll(pageable);
+    }
+
+    public Page<Book> fetchAllBooksWithPaginationAndNameSpecification(Pageable pageable, String name) {
+        return this.bookRepository.findAll(this.bookSpecs.titleLike(name), pageable);
     }
 
 }

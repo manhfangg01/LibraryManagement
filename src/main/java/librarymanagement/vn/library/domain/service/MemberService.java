@@ -10,13 +10,16 @@ import org.springframework.stereotype.Service;
 
 import librarymanagement.vn.library.domain.model.Member;
 import librarymanagement.vn.library.domain.repository.MemberRepository;
+import librarymanagement.vn.library.domain.service.specification.MemberSpecs;
 
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberSpecs memberSpecs;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, MemberSpecs memberSpecs) {
         this.memberRepository = memberRepository;
+        this.memberSpecs = memberSpecs;
     }
 
     public List<Member> fetchAllMember() {
@@ -48,9 +51,12 @@ public class MemberService {
         this.memberRepository.delete(member);
     }
 
-    public Page<Member> fetchAllMembersWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size); // Spring tính từ 0
+    public Page<Member> fetchAllMembersWithPagination(Pageable pageable) {
         return memberRepository.findAll(pageable);
+    }
+
+    public Page<Member> fetchAllMembersWithPaginationAndNameSpecification(Pageable pageable, String name) {
+        return this.memberRepository.findAll(this.memberSpecs.nameLike(name), pageable);
     }
 
 }

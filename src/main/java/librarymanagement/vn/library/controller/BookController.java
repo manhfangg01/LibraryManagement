@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,16 +33,27 @@ public class BookController {
 
     @GetMapping("/books")
     public String getBooks(Model model, @RequestParam("page") Optional<String> optionalPage,
-            @RequestParam Optional<String> optionalSize) {
+            @RequestParam Optional<String> optionalSize, @RequestParam Optional<String> optionalTitle) {
         int page = 1;
         int size = 5;
+        String bookTitle = "";
         if (optionalPage.isPresent()) {
             page = Integer.parseInt(optionalPage.get());
         }
         if (optionalSize.isPresent()) {
             size = Integer.parseInt(optionalSize.get());
         }
-        Page<Book> pageBooks = this.bookService.fetchAllBooksWithPagination(page, size);
+        if (optionalTitle.isPresent()) {
+            bookTitle = optionalTitle.get();
+        }
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Book> pageBooks;
+        if (bookTitle.equals("")) {
+            pageBooks = this.bookService.fetchAllBooksWithPagination(pageable);
+        } else {
+
+            pageBooks = this.bookService.fetchAllBooksWithPaginationAndNameSpecification(pageable, bookTitle);
+        }
         List<Book> books = pageBooks.getContent();
         model.addAttribute("books", books);
         model.addAttribute("currentPage", page);
