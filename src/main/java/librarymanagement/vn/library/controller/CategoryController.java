@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+
+import librarymanagement.vn.library.domain.dto.CategoryFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Category;
 import librarymanagement.vn.library.domain.service.CategoryService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,19 +31,15 @@ public class CategoryController {
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
             @RequestParam("size") Optional<Integer> optionalSize,
-            @RequestParam("name") Optional<String> optionalName) {
+            @ModelAttribute CategoryFilterCriteriaDTO categoryFilterCriteriaDTO) {
         int page = optionalPage.orElse(1);
         int size = optionalSize.orElse(5);
-        String name = optionalName.orElse("");
-        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
         Page<Category> pageCategories;
 
-        if (name.equals("")) {
-            pageCategories = categoryService.fetchAllCategoriesWithPagination(pageable);
-        } else {
-            pageCategories = categoryService.fetchAllCategoriesWithPaginationAndNameSpecification(pageable,
-                    name);
-        }
+        pageCategories = categoryService.fetchAllCategoriesWithPaginationAndSpecification(categoryFilterCriteriaDTO,
+                pageable);
         List<Category> categories = pageCategories.getContent();
 
         model.addAttribute("categories", categories);

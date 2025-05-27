@@ -9,11 +9,21 @@ import librarymanagement.vn.library.domain.model.Librarian_;
 
 @Service
 public class LibrarianSpecs {
-    public Specification<Librarian> nameLike(String name) {
+    public Specification<Librarian> emailLike(String name) {
         return (root, criteriaQuery, criteriaBuilder) -> {
             if (StringUtils.hasText(name)) {
                 return criteriaBuilder.like(root.get(Librarian_.NAME),
                         "%" + name + "%");
+            }
+            return null;
+        };
+    }
+
+    public Specification<Librarian> hasEmail(String email) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (StringUtils.hasText(email)) {
+                return criteriaBuilder.like(root.get(Librarian_.EMAIL),
+                        "%" + email + "%");
             }
             return null;
         };

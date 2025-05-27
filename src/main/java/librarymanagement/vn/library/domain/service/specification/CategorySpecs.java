@@ -19,4 +19,15 @@ public class CategorySpecs {
         };
     }
 
+    public Specification<Category> hasDescription(String description) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (StringUtils.hasText(description)) {
+                return criteriaBuilder.like(root.get(Category_.DESCRIPTION),
+                        "%" + description + "%");
+            }
+            return null;
+        };
+
+    }
+
 }

@@ -32,9 +32,9 @@
       }
       th,
       td {
+        border: 1px solid #ddd;
         padding: 12px 15px;
         text-align: left;
-        border-bottom: 1px solid #ddd;
       }
       th {
         background-color: #4caf50;
@@ -146,20 +146,22 @@
       <h1>📋 Danh sách phiếu mượn</h1>
 
       <div class="search-form">
-        <form th:action="@{/borrows}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="member" placeholder="Tên thành viên..." th:value="${optionalMember != null ? optionalMember : ''}" />
-          <input type="text" name="book" placeholder="Tiêu đề sách..." th:value="${optionalBook != null ? optionalBook : ''}" />
-          <select name="status">
-            <option value="">Tất cả trạng thái</option>
-            <option value="PENDING" th:selected="${optionalStatus == 'PENDING'}">Đang chờ</option>
-            <option value="BORROWED" th:selected="${optionalStatus == 'BORROWED'}">Đang mượn</option>
-            <option value="RETURNED" th:selected="${optionalStatus == 'RETURNED'}">Đã trả</option>
-            <option value="OVERDUE" th:selected="${optionalStatus == 'OVERDUE'}">Quá hạn</option>
-          </select>
-          <input type="text" name="librarian" placeholder="Tên thủ thư..." th:value="${optionalLibrarian != null ? optionalLibrarian : ''}" />
+        <form th:action="@{/borrows}" method="get" th:object="${borrowFilterCriteriaDTO}" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" th:field="*{memberName}" placeholder="Tên thành viên..." />
+          <input type="text" th:field="*{bookTitle}" placeholder="Tiêu đề sách..." />
 
-          <input type="hidden" name="page" th:value="${currentPage}" />
-          <input type="hidden" name="size" th:value="${sizePerPage}" />
+          <select th:field="*{status}">
+            <option value="">Tất cả trạng thái</option>
+            <option
+              th:each="borrowStatus : ${allBorrowStatuses}"
+              th:value="${borrowStatus}"
+              th:text="${borrowStatus.displayName}"
+              th:selected="${borrowFilterCriteriaDTO.status != null and borrowFilterCriteriaDTO.status == borrowStatus}"
+            ></option>
+          </select>
+          <input type="text" th:field="*{librarianName}" placeholder="Tên thủ thư..." />
+
+          <input type="hidden" name="page" th:value="${currentPage - 1}" /> <input type="hidden" name="size" th:value="${sizePerPage}" />
           <button type="submit">🔍 Lọc</button>
         </form>
       </div>
@@ -202,13 +204,13 @@
       <div class="pagination">
         <a
           th:if="${currentPage > 1}"
-          th:href="@{/borrows(page=${currentPage - 1}, size=${sizePerPage}, member=${optionalMember}, book=${optionalBook}, status=${optionalStatus}, librarian=${optionalLibrarian})}"
+          th:href="@{/borrows(page=${currentPage - 2}, size=${sizePerPage}, memberName=${borrowFilterCriteriaDTO.memberName}, bookTitle=${borrowFilterCriteriaDTO.bookTitle}, status=${borrowFilterCriteriaDTO.status}, librarianName=${borrowFilterCriteriaDTO.librarianName})}"
           >⬅️ Trước</a
         >
-        <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
+        <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages-1}"></span></span>
         <a
-          th:if="${currentPage < totalPages}"
-          th:href="@{/borrows(page=${currentPage + 1}, size=${sizePerPage}, member=${optionalMember}, book=${optionalBook}, status=${optionalStatus}, librarian=${optionalLibrarian})}"
+          th:if="${currentPage < totalPages-1}"
+          th:href="@{/borrows(page=${currentPage}, size=${sizePerPage}, memberName=${borrowFilterCriteriaDTO.memberName}, bookTitle=${borrowFilterCriteriaDTO.bookTitle}, status=${borrowFilterCriteriaDTO.status}, librarianName=${borrowFilterCriteriaDTO.librarianName})}"
           >Tiếp ➡️</a
         >
       </div>

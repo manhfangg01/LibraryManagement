@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import librarymanagement.vn.library.domain.dto.BookFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.model.Category;
-import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.CategoryService;
 
@@ -40,7 +39,7 @@ public class BookController {
             @RequestParam(value = "size", defaultValue = "5") int size, // Rút gọn và đặt giá trị mặc định
             @ModelAttribute BookFilterCriteriaDTO filterCriteria) { // Sử dụng DTO để gom các tham số lọc
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(Math.max(0, page), size);
 
         // Lấy tất cả các thể loại để hiển thị trong dropdown
         List<Category> allCategories = categoryService.fetchAllCategories();

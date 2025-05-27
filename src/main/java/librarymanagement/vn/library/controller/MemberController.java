@@ -1,5 +1,6 @@
 package librarymanagement.vn.library.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,8 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
+import librarymanagement.vn.library.domain.dto.MemberFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Member;
 import librarymanagement.vn.library.domain.service.MemberService;
+import librarymanagement.vn.library.util.constant.MembershipType;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,27 +32,29 @@ public class MemberController {
     @GetMapping("/members")
     public String getAllMembers(
             Model model,
-            @RequestParam("page") Optional<Integer> optionalPage,
-            @RequestParam("size") Optional<Integer> optionalSize,
-            @RequestParam("name") Optional<String> optionalName) {
-        int page = optionalPage.orElse(1);
-        int size = optionalSize.orElse(5);
-        String name = optionalName.orElse("");
-        Pageable pageable = PageRequest.of(page - 1, size);
+            @RequestParam(value = "page", defaultValue = "1") int page, // Đặt giá trị mặc định là 1 (1-indexed cho
+                                                                        // người dùng)
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @ModelAttribute MemberFilterCriteriaDTO memberFilterCriteriaDTO) {
 
-        Page<Member> pageMembers;
-        if (name.equals("")) {
-            pageMembers = this.memberService.fetchAllMembersWithPagination(pageable);
-        } else {
-            pageMembers = this.memberService.fetchAllMembersWithPaginationAndNameSpecification(pageable, name);
+        // Chuyển đổi page từ 1-indexed (frontend) sang 0-indexed (Pageable)
+        // Đảm bảo page index không bao giờ nhỏ hơn 0
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
 
-        }
+        Page<Member> pageMembers = this.memberService.fetchAllMembersWithPaginationAndSpecification(
+                memberFilterCriteriaDTO, pageable);
         List<Member> members = pageMembers.getContent();
 
+        // Truyền tất cả các giá trị của enum MembershipType để populate dropdown
+        model.addAttribute("allMembershipTypes", Arrays.asList(MembershipType.values()));
+
         model.addAttribute("members", members);
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", page); // Hiển thị trang hiện tại (1-indexed)
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageMembers.getTotalPages());
+
+        // Rất quan trọng: truyền DTO trở lại view để giữ giá trị trong form
+        model.addAttribute("memberFilterCriteriaDTO", memberFilterCriteriaDTO);
 
         return "members/show"; // trang hiển thị danh sách members
     }

@@ -153,8 +153,12 @@
 
           <select name="membershipType">
             <option value="">Loại thành viên</option>
-            <option value="STANDARD" th:selected="${optionalMembershipType == 'STANDARD'}">Tiêu chuẩn</option>
-            <option value="PREMIUM" th:selected="${optionalMembershipType == 'PREMIUM'}">Cao cấp</option>
+            <option
+              th:each="type : ${allMembershipTypes}"
+              th:value="${type.name()}"
+              th:text="${type.label}"
+              th:selected="${optionalMembershipType != null and optionalMembershipType == type.name()}"
+            ></option>
           </select>
 
           <select name="status">
@@ -189,7 +193,7 @@
             <td th:text="${member.phone}">SĐT</td>
             <td th:text="${member.address}">Địa chỉ</td>
             <td th:text="${member.membershipDate}">Ngày</td>
-            <td th:text="${member.membershipType}">Loại</td>
+            <td th:text="${member.membershipType.label}">Loại</td>
             <td th:text="${member.status ? 'Hoạt động' : 'Tạm khóa'}">Trạng thái</td>
             <td>
               <a th:href="@{'/members/edit/' + ${member.id}}">✏️ Sửa</a> |
@@ -212,7 +216,7 @@
           th:href="@{/members(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"
           >⬅️ Trước</a
         >
-        <span>Trang <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">1</span></span>
+        <span>Trang <span th:text="${totalPages == 0 ? 0 : currentPage}">1</span> / <span th:text="${totalPages}">1</span></span>
         <a
           th:if="${currentPage < totalPages}"
           th:href="@{/members(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"

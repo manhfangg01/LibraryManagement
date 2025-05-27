@@ -6,8 +6,10 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.dto.LibrarianFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Librarian;
 import librarymanagement.vn.library.domain.repository.LibrarianRepository;
 import librarymanagement.vn.library.domain.service.specification.LibrarianSpecs;
@@ -52,8 +54,13 @@ public class LibrarianService {
         return librarianRepository.findAll(pageable);
     }
 
-    public Page<Librarian> fetchAllLibrariansWithPaginationAndNameSpecification(Pageable pageable, String name) {
-        return this.librarianRepository.findAll(this.librarianSpecs.nameLike(name), pageable);
+    public Page<Librarian> fetchAllLibrariansWithPaginationAndSpecification(
+            LibrarianFilterCriteriaDTO librarianFilterCriteriaDTO, Pageable pageable) {
+        Specification<Librarian> spec = Specification.where(null);
+        Specification<Librarian> spec1 = this.librarianSpecs.emailLike(librarianFilterCriteriaDTO.getEmail());
+        Specification<Librarian> spec2 = this.librarianSpecs.hasEmail(librarianFilterCriteriaDTO.getName());
+        spec = spec.and(spec1).and(spec2);
+        return this.librarianRepository.findAll(spec, pageable);
     }
 
 }

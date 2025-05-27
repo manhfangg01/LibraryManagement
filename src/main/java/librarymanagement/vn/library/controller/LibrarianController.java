@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import librarymanagement.vn.library.domain.dto.LibrarianFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Librarian;
 import librarymanagement.vn.library.domain.service.LibrarianService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,18 +34,15 @@ public class LibrarianController {
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
             @RequestParam("size") Optional<Integer> optionalSize,
-            @RequestParam("name") Optional<String> optionalName) {
+            @ModelAttribute LibrarianFilterCriteriaDTO librarianFilterCriteriaDTO) {
         int page = optionalPage.orElse(1); // bắt đầu từ 1
         int size = optionalSize.orElse(5);
-        String name = optionalName.orElse("");
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Librarian> pageLibrarians;
-        if (name.equals("")) {
-            pageLibrarians = this.librarianService.fetchAllLibrariansWithPagination(pageable);
-        } else {
-            pageLibrarians = librarianService.fetchAllLibrariansWithPaginationAndNameSpecification(pageable,
-                    name);
-        }
+
+        pageLibrarians = librarianService.fetchAllLibrariansWithPaginationAndSpecification(librarianFilterCriteriaDTO,
+                pageable);
+
         List<Librarian> librarians = pageLibrarians.getContent();
 
         model.addAttribute("librarians", librarians);

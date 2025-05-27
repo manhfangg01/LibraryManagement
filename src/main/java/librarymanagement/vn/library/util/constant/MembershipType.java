@@ -4,7 +4,9 @@ public enum MembershipType {
     BASIC("Cơ bản"),
     PREMIUM("Cao cấp"),
     STUDENT("Sinh viên"),
-    VIP("VIP");
+    VIP("VIP"),
+    // Thêm hằng số Regular vào đây
+    REGULAR("Thường xuyên"); // Hoặc tên hiển thị bạn muốn
 
     private final String label;
 

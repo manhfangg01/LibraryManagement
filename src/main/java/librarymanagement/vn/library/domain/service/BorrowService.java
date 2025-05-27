@@ -6,18 +6,23 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.dto.BorrowFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.model.Borrow;
 import librarymanagement.vn.library.domain.repository.BorrowRepository;
+import librarymanagement.vn.library.domain.service.specification.BorrowSpecs;
 
 @Service
 public class BorrowService {
     private BorrowRepository borrowRepository;
+    private BorrowSpecs borrowSpecs;
 
-    public BorrowService(BorrowRepository borrowRepository) {
+    public BorrowService(BorrowRepository borrowRepository, BorrowSpecs borrowSpecs) {
         this.borrowRepository = borrowRepository;
+        this.borrowSpecs = borrowSpecs;
     }
 
     public Optional<Borrow> fetchBorrowById(long id) {
@@ -52,8 +57,14 @@ public class BorrowService {
         this.borrowRepository.delete(optionalBorrow.get());
     }
 
-    public Page<Borrow> fetchAllBorrowsWithPagination(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return this.borrowRepository.findAll(pageable);
+    public Page<Borrow> fetchAllBorrowsWithPagination(
+            BorrowFilterCriteriaDTO borrowFilterCriteriaDTO, Pageable pageable) {
+        Specification<Borrow> spec = Specification.where(null);
+        Specification<Borrow> spec1 = this.borrowSpecs.belongsToMember(borrowFilterCriteriaDTO.getMemberName());
+        Specification<Borrow> spec2 = this.borrowSpecs.hasBook(borrowFilterCriteriaDTO.getBookTitle());
+        Specification<Borrow> spec3 = this.borrowSpecs.hasStatus(borrowFilterCriteriaDTO.getStatus());
+        Specification<Borrow> spec4 = this.borrowSpecs.managedByLibrarian(borrowFilterCriteriaDTO.getLibrarianName());
+        spec = spec.and(spec1).and(spec2).and(spec3).and(spec4);
+        return this.borrowRepository.findAll(spec, pageable);
     }
 }

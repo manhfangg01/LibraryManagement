@@ -225,10 +225,10 @@
           >⬅️ Trước</a
         >
 
-        <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
+        <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages-1}"></span></span>
 
         <a
-          th:if="${currentPage < totalPages}"
+          th:if="${currentPage < totalPages-1}"
           th:href="@{/books(page=${currentPage + 1}, size=${sizePerPage}, title=${filterCriteria.title}, author=${filterCriteria.author}, categoryIds=${filterCriteria.categoryIds})}"
           >Tiếp ➡️</a
         >

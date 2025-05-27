@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.dto.MemberFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Member;
 import librarymanagement.vn.library.domain.repository.MemberRepository;
 import librarymanagement.vn.library.domain.service.specification.MemberSpecs;
@@ -55,8 +56,16 @@ public class MemberService {
         return memberRepository.findAll(pageable);
     }
 
-    public Page<Member> fetchAllMembersWithPaginationAndNameSpecification(Pageable pageable, String name) {
-        return this.memberRepository.findAll(this.memberSpecs.nameLike(name), pageable);
+    public Page<Member> fetchAllMembersWithPaginationAndSpecification(MemberFilterCriteriaDTO memberFilterCriteriaDTO,
+            Pageable pageable) {
+        Specification<Member> spec = Specification.where(null);
+        Specification<Member> spec1 = this.memberSpecs.hasEmail(memberFilterCriteriaDTO.getEmail());
+        Specification<Member> spec2 = this.memberSpecs.hasMemberType(memberFilterCriteriaDTO.getMembershipType());
+        Specification<Member> spec3 = this.memberSpecs.hasPhone(memberFilterCriteriaDTO.getPhone());
+        Specification<Member> spec4 = this.memberSpecs.hasStatus(memberFilterCriteriaDTO.getStatus());
+        Specification<Member> spec5 = this.memberSpecs.nameLike(memberFilterCriteriaDTO.getName());
+        spec = spec.and(spec1).and(spec2).and(spec3).and(spec4).and(spec5);
+        return this.memberRepository.findAll(spec, pageable);
     }
 
 }

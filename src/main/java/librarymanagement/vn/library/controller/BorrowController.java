@@ -1,15 +1,19 @@
 package librarymanagement.vn.library.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import librarymanagement.vn.library.domain.dto.BorrowFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Borrow;
 import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.BorrowService;
@@ -39,25 +43,28 @@ public class BorrowController {
     @GetMapping("/borrows")
     public String getBorrows(
             Model model,
-            @RequestParam("page") Optional<String> optionalPage,
-            @RequestParam Optional<String> optionalSize) {
+            @RequestParam(value = "page", defaultValue = "1") int page, // Đặt giá trị mặc định là 1 (1-indexed cho
+                                                                        // người dùng)
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @ModelAttribute BorrowFilterCriteriaDTO borrowFilterCriteriaDTO) {
 
-        int page = 1;
-        int size = 5;
-        if (optionalPage.isPresent()) {
-            page = Integer.parseInt(optionalPage.get());
-        }
-        if (optionalSize.isPresent()) {
-            size = Integer.parseInt(optionalSize.get());
-        }
+        // Chuyển đổi page từ 1-indexed (frontend) sang 0-indexed (Pageable)
+        // Đảm bảo page index không bao giờ nhỏ hơn 0
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size); // Đã sửa lỗi ở đây
 
-        Page<Borrow> borrowPage = borrowService.fetchAllBorrowsWithPagination(page, size);
+        Page<Borrow> borrowPage = borrowService.fetchAllBorrowsWithPagination(borrowFilterCriteriaDTO, pageable);
         List<Borrow> borrows = borrowPage.getContent();
 
         model.addAttribute("borrows", borrows);
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", page); // Hiển thị trang hiện tại (1-indexed)
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", borrowPage.getTotalPages());
+
+        // Rất quan trọng: truyền DTO trở lại view để giữ giá trị trong form
+        model.addAttribute("borrowFilterCriteriaDTO", borrowFilterCriteriaDTO);
+
+        // Truyền tất cả các giá trị của enum BorrowStatus để populate dropdown
+        model.addAttribute("allBorrowStatuses", Arrays.asList(BorrowStatus.values()));
 
         return "/borrows/show";
     }
