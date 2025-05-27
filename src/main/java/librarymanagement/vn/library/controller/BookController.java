@@ -55,6 +55,7 @@ public class BookController {
             pageBooks = this.bookService.fetchAllBooksWithPaginationAndNameSpecification(pageable, bookTitle);
         }
         List<Book> books = pageBooks.getContent();
+        model.addAttribute("categories", categoryService.fetchAllCategories());
         model.addAttribute("books", books);
         model.addAttribute("currentPage", page);
         model.addAttribute("sizePerPage", size);

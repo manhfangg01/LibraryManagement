@@ -115,6 +115,7 @@
       .search-form {
         margin-bottom: 20px;
         display: flex;
+        flex-wrap: wrap; /* Allows wrapping on smaller screens */
         gap: 10px;
         justify-content: center;
         align-items: center;
@@ -124,7 +125,7 @@
         border: 1px solid #ced4da;
         border-radius: 8px;
         flex-grow: 1;
-        max-width: 400px;
+        min-width: 150px; /* Ensure inputs don't get too small */
       }
       .search-form button {
         background-color: #007bff;
@@ -132,6 +133,7 @@
         padding: 10px 20px;
         border-radius: 8px;
         font-size: 1em;
+        flex-shrink: 0; /* Prevent button from shrinking */
       }
       .search-form button:hover {
         background-color: #0056b3;
@@ -143,11 +145,13 @@
       <h1>📖 Danh sách thủ thư</h1>
 
       <div class="search-form">
-        <form th:action="@{/librarians}" method="get" style="display: flex; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="name" placeholder="Tìm kiếm theo tên thủ thư..." th:value="${optionalName != null ? optionalName : ''}" />
+        <form th:action="@{/librarians}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" name="name" placeholder="Tên thủ thư..." th:value="${optionalName != null ? optionalName : ''}" />
+          <input type="text" name="email" placeholder="Email..." th:value="${optionalEmail != null ? optionalEmail : ''}" />
+
           <input type="hidden" name="page" th:value="${currentPage}" />
           <input type="hidden" name="size" th:value="${sizePerPage}" />
-          <button type="submit">🔍 Tìm kiếm</button>
+          <button type="submit">🔍 Lọc</button>
         </form>
       </div>
 
@@ -181,11 +185,11 @@
       <br />
 
       <div class="pagination">
-        <a th:if="${currentPage > 1}" th:href="@{/librarians(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName})}">⬅️ Trước</a>
+        <a th:if="${currentPage > 1}" th:href="@{/librarians(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail})}">⬅️ Trước</a>
 
         <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
 
-        <a th:if="${currentPage < totalPages}" th:href="@{/librarians(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName})}">Tiếp ➡️</a>
+        <a th:if="${currentPage < totalPages}" th:href="@{/librarians(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail})}">Tiếp ➡️</a>
       </div>
 
       <a href="/librarians/create" class="add-link">➕ Thêm thủ thư mới</a>

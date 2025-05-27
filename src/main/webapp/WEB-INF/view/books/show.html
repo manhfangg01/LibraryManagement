@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <title>Danh sách sách</title>
+    <title>📚 Danh sách sách</title>
     <style>
       body {
         font-family: "Inter", sans-serif;
@@ -16,7 +16,7 @@
         margin-bottom: 30px;
       }
       .container {
-        max-width: 900px;
+        max-width: 1200px; /* Adjusted max-width for more filter inputs and columns */
         margin: 0 auto;
         background-color: #fff;
         padding: 25px;
@@ -129,16 +129,19 @@
       .search-form {
         margin-bottom: 20px;
         display: flex;
+        flex-wrap: wrap; /* Allows wrapping on smaller screens */
         gap: 10px;
         justify-content: center;
         align-items: center;
       }
-      .search-form input[type="text"] {
+      .search-form input[type="text"],
+      .search-form select {
+        /* Added select to styling */
         padding: 10px 15px;
         border: 1px solid #ced4da;
         border-radius: 8px;
         flex-grow: 1;
-        max-width: 400px;
+        min-width: 150px; /* Ensure inputs don't get too small */
       }
       .search-form button {
         background-color: #007bff;
@@ -146,6 +149,7 @@
         padding: 10px 20px;
         border-radius: 8px;
         font-size: 1em;
+        flex-shrink: 0; /* Prevent button from shrinking */
       }
       .search-form button:hover {
         background-color: #0056b3;
@@ -157,11 +161,18 @@
       <h1>📚 Danh sách sách</h1>
 
       <div class="search-form">
-        <form th:action="@{/books}" method="get" style="display: flex; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="optionalTitle" placeholder="Tìm kiếm theo tiêu đề sách..." th:value="${optionalTitle != null ? optionalTitle : ''}" />
+        <form th:action="@{/books}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" name="title" placeholder="Tiêu đề sách..." th:value="${optionalTitle != null ? optionalTitle : ''}" />
+          <input type="text" name="author" placeholder="Tác giả..." th:value="${optionalAuthor != null ? optionalAuthor : ''}" />
+
+          <select name="category">
+            <option value="">Tất cả thể loại</option>
+            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${optionalCategory != null and optionalCategory == cat.id}">Thể loại</option>
+          </select>
+
           <input type="hidden" name="page" th:value="${currentPage}" />
           <input type="hidden" name="size" th:value="${sizePerPage}" />
-          <button type="submit">🔍 Tìm kiếm</button>
+          <button type="submit">🔍 Lọc</button>
         </form>
       </div>
 
@@ -203,11 +214,13 @@
       <br />
 
       <div class="pagination">
-        <a th:if="${currentPage > 1}" th:href="@{/books(page=${currentPage - 1}, size=${sizePerPage}, optionalTitle=${optionalTitle})}">⬅️ Trước</a>
+        <a th:if="${currentPage > 1}" th:href="@{/books(page=${currentPage - 1}, size=${sizePerPage}, title=${optionalTitle}, author=${optionalAuthor}, category=${optionalCategory})}">⬅️ Trước</a>
 
         <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
 
-        <a th:if="${currentPage < totalPages}" th:href="@{/books(page=${currentPage + 1}, size=${sizePerPage}, optionalTitle=${optionalTitle})}">Tiếp ➡️</a>
+        <a th:if="${currentPage < totalPages}" th:href="@{/books(page=${currentPage + 1}, size=${sizePerPage}, title=${optionalTitle}, author=${optionalAuthor}, category=${optionalCategory})}"
+          >Tiếp ➡️</a
+        >
       </div>
 
       <a href="/books/create" class="add-book-link">➕ Thêm sách mới</a>

@@ -16,7 +16,7 @@
         margin-bottom: 30px;
       }
       .container {
-        max-width: 1000px; /* Adjusted max-width for more columns */
+        max-width: 1200px; /* Adjusted max-width for more filter inputs and columns */
         margin: 0 auto;
         background-color: #fff;
         padding: 25px;
@@ -115,16 +115,18 @@
       .search-form {
         margin-bottom: 20px;
         display: flex;
+        flex-wrap: wrap; /* Allows wrapping on smaller screens */
         gap: 10px;
         justify-content: center;
         align-items: center;
       }
-      .search-form input[type="text"] {
+      .search-form input[type="text"],
+      .search-form select {
         padding: 10px 15px;
         border: 1px solid #ced4da;
         border-radius: 8px;
         flex-grow: 1;
-        max-width: 400px;
+        min-width: 150px; /* Ensure inputs don't get too small */
       }
       .search-form button {
         background-color: #007bff;
@@ -132,6 +134,7 @@
         padding: 10px 20px;
         border-radius: 8px;
         font-size: 1em;
+        flex-shrink: 0; /* Prevent button from shrinking */
       }
       .search-form button:hover {
         background-color: #0056b3;
@@ -143,11 +146,26 @@
       <h1>👥 Danh sách thành viên</h1>
 
       <div class="search-form">
-        <form th:action="@{/members}" method="get" style="display: flex; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="name" placeholder="Tìm kiếm theo tên thành viên..." th:value="${optionalName != null ? optionalName : ''}" />
+        <form th:action="@{/members}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" name="name" placeholder="Tên thành viên..." th:value="${optionalName != null ? optionalName : ''}" />
+          <input type="text" name="email" placeholder="Email..." th:value="${optionalEmail != null ? optionalEmail : ''}" />
+          <input type="text" name="phone" placeholder="Điện thoại..." th:value="${optionalPhone != null ? optionalPhone : ''}" />
+
+          <select name="membershipType">
+            <option value="">Loại thành viên</option>
+            <option value="STANDARD" th:selected="${optionalMembershipType == 'STANDARD'}">Tiêu chuẩn</option>
+            <option value="PREMIUM" th:selected="${optionalMembershipType == 'PREMIUM'}">Cao cấp</option>
+          </select>
+
+          <select name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="true" th:selected="${optionalStatus != null and optionalStatus == 'true'}">Hoạt động</option>
+            <option value="false" th:selected="${optionalStatus != null and optionalStatus == 'false'}">Tạm khóa</option>
+          </select>
+
           <input type="hidden" name="page" th:value="${currentPage}" />
           <input type="hidden" name="size" th:value="${sizePerPage}" />
-          <button type="submit">🔍 Tìm kiếm</button>
+          <button type="submit">🔍 Lọc</button>
         </form>
       </div>
 
@@ -189,9 +207,17 @@
       <br />
 
       <div class="pagination">
-        <a th:if="${currentPage > 1}" th:href="@{/members(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName})}">⬅️ Trước</a>
+        <a
+          th:if="${currentPage > 1}"
+          th:href="@{/members(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"
+          >⬅️ Trước</a
+        >
         <span>Trang <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">1</span></span>
-        <a th:if="${currentPage < totalPages}" th:href="@{/members(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName})}">Tiếp ➡️</a>
+        <a
+          th:if="${currentPage < totalPages}"
+          th:href="@{/members(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"
+          >Tiếp ➡️</a
+        >
       </div>
 
       <br />

@@ -4,66 +4,217 @@
     <meta charset="UTF-8" />
     <title>📋 Danh sách phiếu mượn</title>
     <style>
+      body {
+        font-family: "Inter", sans-serif;
+        margin: 20px;
+        background-color: #f4f7f6;
+        color: #333;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .container {
+        max-width: 1100px; /* Adjusted max-width for more columns in Borrow */
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
       table {
-        border-collapse: collapse;
         width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden; /* Ensures rounded corners apply to content */
       }
       th,
       td {
-        border: 1px solid #ccc;
-        padding: 8px;
+        padding: 12px 15px;
         text-align: left;
+        border-bottom: 1px solid #ddd;
       }
       th {
-        background-color: #f0f0f0;
+        background-color: #4caf50;
+        color: white;
+        font-weight: bold;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      tr:hover {
+        background-color: #e9e9e9;
+      }
+      a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      a:hover {
+        color: #0056b3;
+      }
+      button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 0.9em;
+      }
+      button:hover {
+        background-color: #c82333;
       }
       .pagination {
-        margin-top: 20px;
+        text-align: center;
+        margin-top: 25px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+      .pagination a,
+      .pagination span {
+        display: inline-block;
+        padding: 8px 15px;
+        margin: 0 5px;
+        border-radius: 8px;
+        background-color: #e9ecef;
+        color: #495057;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+      }
+      .pagination a:hover {
+        background-color: #dee2e6;
+      }
+      .pagination span {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+      }
+      .add-link {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        padding: 12px 25px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .add-link:hover {
+        background-color: #218838;
+      }
+      .search-form {
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap; /* Allows wrapping on smaller screens */
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+      .search-form input[type="text"],
+      .search-form select {
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        flex-grow: 1;
+        min-width: 150px; /* Ensure inputs don't get too small */
+      }
+      .search-form button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1em;
+        flex-shrink: 0; /* Prevent button from shrinking */
+      }
+      .search-form button:hover {
+        background-color: #0056b3;
       }
     </style>
   </head>
   <body>
-    <h1>📋 Danh sách phiếu mượn</h1>
+    <div class="container">
+      <h1>📋 Danh sách phiếu mượn</h1>
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Ngày mượn</th>
-          <th>Hạn trả</th>
-          <th>Trạng thái</th>
-          <th>Thành viên</th>
-          <th>Sách</th>
-          <th>Thủ thư</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="borrow : ${borrows}">
-          <td th:text="${borrow.id}"></td>
-          <td th:text="${borrow.borrowDate}"></td>
-          <td th:text="${borrow.dueDate}"></td>
-          <td th:text="${borrow.status}"></td>
-          <td th:text="${borrow.member.name}"></td>
-          <td th:text="${borrow.book.title}"></td>
-          <td th:text="${borrow.librarian.name}"></td>
-          <td>
-            <a th:href="@{'/borrows/edit/' + ${borrow.id}}">✏️ Sửa</a> |
-            <form th:action="@{'/borrows/delete/' + ${borrow.id}}" method="post" style="display: inline">
-              <button type="submit">🗑️ Xoá</button>
-            </form>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div class="search-form">
+        <form th:action="@{/borrows}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" name="member" placeholder="Tên thành viên..." th:value="${optionalMember != null ? optionalMember : ''}" />
+          <input type="text" name="book" placeholder="Tiêu đề sách..." th:value="${optionalBook != null ? optionalBook : ''}" />
+          <select name="status">
+            <option value="">Tất cả trạng thái</option>
+            <option value="PENDING" th:selected="${optionalStatus == 'PENDING'}">Đang chờ</option>
+            <option value="BORROWED" th:selected="${optionalStatus == 'BORROWED'}">Đang mượn</option>
+            <option value="RETURNED" th:selected="${optionalStatus == 'RETURNED'}">Đã trả</option>
+            <option value="OVERDUE" th:selected="${optionalStatus == 'OVERDUE'}">Quá hạn</option>
+          </select>
+          <input type="text" name="librarian" placeholder="Tên thủ thư..." th:value="${optionalLibrarian != null ? optionalLibrarian : ''}" />
 
-    <div class="pagination">
-      <a th:if="${currentPage > 1}" th:href="@{/borrows(page=${currentPage - 1}, size=${sizePerPage})}">⬅️ Trước</a>
-      <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
-      <a th:if="${currentPage < totalPages}" th:href="@{/borrows(page=${currentPage + 1}, size=${sizePerPage})}">Tiếp ➡️</a>
+          <input type="hidden" name="page" th:value="${currentPage}" />
+          <input type="hidden" name="size" th:value="${sizePerPage}" />
+          <button type="submit">🔍 Lọc</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ngày mượn</th>
+            <th>Hạn trả</th>
+            <th>Trạng thái</th>
+            <th>Thành viên</th>
+            <th>Sách</th>
+            <th>Thủ thư</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="borrow : ${borrows}">
+            <td th:text="${borrow.id}"></td>
+            <td th:text="${borrow.borrowDate}"></td>
+            <td th:text="${borrow.dueDate}"></td>
+            <td th:text="${borrow.status}"></td>
+            <td th:text="${borrow.member.name}"></td>
+            <td th:text="${borrow.book.title}"></td>
+            <td th:text="${borrow.librarian.name}"></td>
+            <td>
+              <a th:href="@{'/borrows/edit/' + ${borrow.id}}">✏️ Sửa</a> |
+              <form th:action="@{'/borrows/delete/' + ${borrow.id}}" method="post" style="display: inline">
+                <button type="submit">🗑️ Xoá</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${borrows.isEmpty()}">
+            <td colspan="8" style="text-align: center; padding: 20px">Không tìm thấy phiếu mượn nào.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <a
+          th:if="${currentPage > 1}"
+          th:href="@{/borrows(page=${currentPage - 1}, size=${sizePerPage}, member=${optionalMember}, book=${optionalBook}, status=${optionalStatus}, librarian=${optionalLibrarian})}"
+          >⬅️ Trước</a
+        >
+        <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
+        <a
+          th:if="${currentPage < totalPages}"
+          th:href="@{/borrows(page=${currentPage + 1}, size=${sizePerPage}, member=${optionalMember}, book=${optionalBook}, status=${optionalStatus}, librarian=${optionalLibrarian})}"
+          >Tiếp ➡️</a
+        >
+      </div>
+
+      <br />
+      <a href="/borrows/create" class="add-link">➕ Thêm phiếu mượn mới</a>
     </div>
-
-    <br />
-    <a href="/borrows/create">➕ Thêm phiếu mượn mới</a>
   </body>
 </html>
