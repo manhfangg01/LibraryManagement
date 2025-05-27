@@ -11,7 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import librarymanagement.vn.library.domain.dto.BookFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Book;
+import librarymanagement.vn.library.domain.model.Category;
 import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.service.BookService;
 import librarymanagement.vn.library.domain.service.CategoryService;
@@ -32,34 +34,33 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public String getBooks(Model model, @RequestParam("page") Optional<String> optionalPage,
-            @RequestParam Optional<String> optionalSize, @RequestParam Optional<String> optionalTitle) {
-        int page = 1;
-        int size = 5;
-        String bookTitle = "";
-        if (optionalPage.isPresent()) {
-            page = Integer.parseInt(optionalPage.get());
-        }
-        if (optionalSize.isPresent()) {
-            size = Integer.parseInt(optionalSize.get());
-        }
-        if (optionalTitle.isPresent()) {
-            bookTitle = optionalTitle.get();
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Book> pageBooks;
-        if (bookTitle.equals("")) {
-            pageBooks = this.bookService.fetchAllBooksWithPagination(pageable);
-        } else {
+    public String getBooks(
+            Model model,
+            @RequestParam(value = "page", defaultValue = "1") int page, // Rút gọn và đặt giá trị mặc định
+            @RequestParam(value = "size", defaultValue = "5") int size, // Rút gọn và đặt giá trị mặc định
+            @ModelAttribute BookFilterCriteriaDTO filterCriteria) { // Sử dụng DTO để gom các tham số lọc
 
-            pageBooks = this.bookService.fetchAllBooksWithPaginationAndNameSpecification(pageable, bookTitle);
-        }
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy tất cả các thể loại để hiển thị trong dropdown
+        List<Category> allCategories = categoryService.fetchAllCategories();
+
+        // Gọi service với các bộ lọc từ DTO
+        Page<Book> pageBooks = this.bookService.fetchAllBooksWithPaginationAndNameSpecification(
+                pageable,
+                filterCriteria // Truyền toàn bộ đối tượng DTO BookFilterCriteria
+        );
         List<Book> books = pageBooks.getContent();
-        model.addAttribute("categories", categoryService.fetchAllCategories());
+
         model.addAttribute("books", books);
         model.addAttribute("currentPage", page);
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageBooks.getTotalPages());
+
+        // Truyền đối tượng filterCriteria trở lại view để giữ lại giá trị trong form
+        model.addAttribute("filterCriteria", filterCriteria);
+        model.addAttribute("allCategories", allCategories);
+
         return "books/show";
     }
 

@@ -6,8 +6,10 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import librarymanagement.vn.library.domain.dto.BookFilterCriteriaDTO;
 import librarymanagement.vn.library.domain.model.Book;
 import librarymanagement.vn.library.domain.repository.BookRepository;
 import librarymanagement.vn.library.domain.service.specification.BookSpecs;
@@ -47,8 +49,15 @@ public class BookService {
         return this.bookRepository.findAll(pageable);
     }
 
-    public Page<Book> fetchAllBooksWithPaginationAndNameSpecification(Pageable pageable, String name) {
-        return this.bookRepository.findAll(this.bookSpecs.titleLike(name), pageable);
+    public Page<Book> fetchAllBooksWithPaginationAndNameSpecification(Pageable pageable,
+            BookFilterCriteriaDTO bookFilterCriteriaDTO) {
+        Specification<Book> spec = Specification.where(null);
+        Specification<Book> spec1 = this.bookSpecs.titleLike(bookFilterCriteriaDTO.getTitle());
+        Specification<Book> spec2 = this.bookSpecs.hasAuthorName(bookFilterCriteriaDTO.getAuthor());
+        Specification<Book> spec3 = this.bookSpecs.hasCategories(bookFilterCriteriaDTO.getCategoryIds());
+        spec = spec.and(spec1).and(spec2).and(spec3);
+
+        return this.bookRepository.findAll(spec, pageable);
     }
 
 }

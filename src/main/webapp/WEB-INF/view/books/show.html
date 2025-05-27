@@ -28,7 +28,7 @@
         border-collapse: collapse;
         margin-top: 20px;
         border-radius: 8px;
-        overflow: hidden; /* Ensures rounded corners apply to content */
+        overflow: hidden;
       }
       th,
       td {
@@ -136,12 +136,16 @@
       }
       .search-form input[type="text"],
       .search-form select {
-        /* Added select to styling */
         padding: 10px 15px;
         border: 1px solid #ced4da;
         border-radius: 8px;
         flex-grow: 1;
         min-width: 150px; /* Ensure inputs don't get too small */
+        height: 42px; /* Standardize height for select and input */
+      }
+      .search-form select[multiple] {
+        height: auto; /* Allow multiple select to expand */
+        min-height: 42px; /* Minimum height for multiple select */
       }
       .search-form button {
         background-color: #007bff;
@@ -150,6 +154,7 @@
         border-radius: 8px;
         font-size: 1em;
         flex-shrink: 0; /* Prevent button from shrinking */
+        height: 42px; /* Standardize height for button */
       }
       .search-form button:hover {
         background-color: #0056b3;
@@ -161,13 +166,13 @@
       <h1>📚 Danh sách sách</h1>
 
       <div class="search-form">
-        <form th:action="@{/books}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="title" placeholder="Tiêu đề sách..." th:value="${optionalTitle != null ? optionalTitle : ''}" />
-          <input type="text" name="author" placeholder="Tác giả..." th:value="${optionalAuthor != null ? optionalAuthor : ''}" />
+        <form th:action="@{/books}" method="get" th:object="${filterCriteria}" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+          <input type="text" th:field="*{title}" placeholder="Tiêu đề sách..." />
+          <input type="text" th:field="*{author}" placeholder="Tác giả..." />
 
-          <select name="category">
-            <option value="">Tất cả thể loại</option>
-            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${optionalCategory != null and optionalCategory == cat.id}">Thể loại</option>
+          <select th:field="*{categoryIds}" multiple="multiple">
+            <option value="">-- Chọn thể loại --</option>
+            <option th:each="cat : ${allCategories}" th:value="${cat.id}" th:text="${cat.name}">Thể loại</option>
           </select>
 
           <input type="hidden" name="page" th:value="${currentPage}" />
@@ -214,11 +219,17 @@
       <br />
 
       <div class="pagination">
-        <a th:if="${currentPage > 1}" th:href="@{/books(page=${currentPage - 1}, size=${sizePerPage}, title=${optionalTitle}, author=${optionalAuthor}, category=${optionalCategory})}">⬅️ Trước</a>
+        <a
+          th:if="${currentPage > 1}"
+          th:href="@{/books(page=${currentPage - 1}, size=${sizePerPage}, title=${filterCriteria.title}, author=${filterCriteria.author}, categoryIds=${filterCriteria.categoryIds})}"
+          >⬅️ Trước</a
+        >
 
         <span>Trang <span th:text="${currentPage}"></span> / <span th:text="${totalPages}"></span></span>
 
-        <a th:if="${currentPage < totalPages}" th:href="@{/books(page=${currentPage + 1}, size=${sizePerPage}, title=${optionalTitle}, author=${optionalAuthor}, category=${optionalCategory})}"
+        <a
+          th:if="${currentPage < totalPages}"
+          th:href="@{/books(page=${currentPage + 1}, size=${sizePerPage}, title=${filterCriteria.title}, author=${filterCriteria.author}, categoryIds=${filterCriteria.categoryIds})}"
           >Tiếp ➡️</a
         >
       </div>
