@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,10 +35,13 @@ public class LibrarianController {
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
             @RequestParam("size") Optional<Integer> optionalSize,
+            @RequestParam(defaultValue = "id") String sortBy, // Mặc định sắp xếp theo 'id'
+            @RequestParam(defaultValue = "asc") String sortDir, // Mặc định sắp xếp thèo tăng dần
             @ModelAttribute LibrarianFilterCriteriaDTO librarianFilterCriteriaDTO) {
         int page = optionalPage.orElse(1); // bắt đầu từ 1
         int size = optionalSize.orElse(5);
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<Librarian> pageLibrarians;
 
         pageLibrarians = librarianService.fetchAllLibrariansWithPaginationAndSpecification(librarianFilterCriteriaDTO,
@@ -49,7 +53,8 @@ public class LibrarianController {
         model.addAttribute("currentPage", page);
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageLibrarians.getTotalPages());
-
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         return "librarians/show"; // trang hiển thị danh sách thủ thư
     }
 

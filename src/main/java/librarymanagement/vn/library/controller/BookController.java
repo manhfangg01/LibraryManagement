@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,9 @@ import librarymanagement.vn.library.domain.service.CategoryService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
@@ -37,9 +41,13 @@ public class BookController {
             Model model,
             @RequestParam(value = "page", defaultValue = "1") int page, // Rút gọn và đặt giá trị mặc định
             @RequestParam(value = "size", defaultValue = "5") int size, // Rút gọn và đặt giá trị mặc định
+            @RequestParam(defaultValue = "id") String sortBy, // Mặc định sắp xếp theo 'id'
+            @RequestParam(defaultValue = "asc") String sortDir, // Mặc định sắp xếp thèo tăng dần
             @ModelAttribute BookFilterCriteriaDTO filterCriteria) { // Sử dụng DTO để gom các tham số lọc
 
-        Pageable pageable = PageRequest.of(Math.max(0, page), size);
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(Math.max(0, page), size, sort);
 
         // Lấy tất cả các thể loại để hiển thị trong dropdown
         List<Category> allCategories = categoryService.fetchAllCategories();
@@ -59,6 +67,8 @@ public class BookController {
         // Truyền đối tượng filterCriteria trở lại view để giữ lại giá trị trong form
         model.addAttribute("filterCriteria", filterCriteria);
         model.addAttribute("allCategories", allCategories);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
 
         return "books/show";
     }
@@ -123,6 +133,26 @@ public class BookController {
         }
         this.bookService.deleteById(id);
         return "redirect:/books";
+    }
+
+    @GetMapping("/books/detail/{id}")
+    public String showBookDetail(@PathVariable("id") long id, Model model, HttpServletRequest request) {
+        Optional<Book> optionalBook = this.bookService.fetchBookById(id);
+        if (optionalBook.isEmpty()) {
+            // Lấy URL của trang trước đó từ header Referer
+            String referer = request.getHeader("Referer");
+            if (referer != null && !referer.isEmpty()) {
+                // Nếu có referer, chuyển hướng về trang đó
+                return "redirect:" + referer;
+            } else {
+                // Nếu không có referer (ví dụ: truy cập trực tiếp), chuyển hướng về trang danh
+                // sách sách mặc định
+                return "redirect:/books";
+            }
+        } else {
+            model.addAttribute("book", optionalBook.get()); // Đặt tên thuộc tính là "book" để khớp với template
+        }
+        return "books/detail"; // Đảm bảo tên view khớp với đường dẫn file HTML: templates/books/detail.html
     }
 
 }

@@ -146,7 +146,13 @@
       <h1>📋 Danh sách phiếu mượn</h1>
 
       <div class="search-form">
-        <form th:action="@{/borrows}" method="get" th:object="${borrowFilterCriteriaDTO}" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
+        <form
+          th:action="@{/borrows}"
+          method="get"
+          th:object="${borrowFilterCriteriaDTO}"
+          onsubmit="return cleanFormInputs(this);"
+          style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center"
+        >
           <input type="text" th:field="*{memberName}" placeholder="Tên thành viên..." />
           <input type="text" th:field="*{bookTitle}" placeholder="Tiêu đề sách..." />
 
@@ -219,4 +225,18 @@
       <a href="/borrows/create" class="add-link">➕ Thêm phiếu mượn mới</a>
     </div>
   </body>
+
+  <script>
+    function cleanFormInputs(form) {
+      for (let i = 0; i < form.elements.length; i++) {
+        const element = form.elements[i];
+        // Chỉ xử lý các input type text, select và không phải hidden
+        // hoặc nếu bạn muốn xử lý tất cả trừ hidden, hãy điều chỉnh điều kiện
+        if ((element.type === "text" || element.tagName === "SELECT") && element.value === "") {
+          element.disabled = true; // Vô hiệu hóa để không gửi giá trị này
+        }
+      }
+      return true; // Trả về true để form tiếp tục được gửi
+    }
+  </script>
 </html>

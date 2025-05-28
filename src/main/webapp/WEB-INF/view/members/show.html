@@ -146,30 +146,47 @@
       <h1>👥 Danh sách thành viên</h1>
 
       <div class="search-form">
-        <form th:action="@{/members}" method="get" style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center">
-          <input type="text" name="name" placeholder="Tên thành viên..." th:value="${optionalName != null ? optionalName : ''}" />
-          <input type="text" name="email" placeholder="Email..." th:value="${optionalEmail != null ? optionalEmail : ''}" />
-          <input type="text" name="phone" placeholder="Điện thoại..." th:value="${optionalPhone != null ? optionalPhone : ''}" />
+        <form
+          th:action="@{/members}"
+          method="get"
+          th:object="${memberFilterCriteriaDTO}"
+          onsubmit="return cleanFormInputs(this);"
+          style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: center"
+        >
+          <input type="text" name="name" placeholder="Tên thành viên..." th:field="*{name}" />
+          <input type="text" name="email" placeholder="Email..." th:field="*{email}" />
+          <input type="text" name="phone" placeholder="Điện thoại..." th:field="*{phone}" />
 
-          <select name="membershipType">
+          <select name="membershipType" th:field="*{membershipType}">
             <option value="">Loại thành viên</option>
-            <option
-              th:each="type : ${allMembershipTypes}"
-              th:value="${type.name()}"
-              th:text="${type.label}"
-              th:selected="${optionalMembershipType != null and optionalMembershipType == type.name()}"
-            ></option>
+            <option th:each="type : ${allMembershipTypes}" th:value="${type}" th:text="${type.label}"></option>
           </select>
 
-          <select name="status">
+          <select name="status" th:field="*{status}">
             <option value="">Tất cả trạng thái</option>
-            <option value="true" th:selected="${optionalStatus != null and optionalStatus == 'true'}">Hoạt động</option>
-            <option value="false" th:selected="${optionalStatus != null and optionalStatus == 'false'}">Tạm khóa</option>
+            <option value="true">Hoạt động</option>
+            <option value="false">Tạm khóa</option>
           </select>
+
+          <div class="sort-group">
+            <select name="sortBy" th:value="${sortBy}">
+              <option value="">-- Sắp xếp theo --</option>
+              <option value="name" th:selected="${sortBy == 'name'}">Tên thủ thư</option>
+              <option value="email" th:selected="${sortBy == 'email'}">Email</option>
+            </select>
+
+            <select name="sortDir" th:value="${sortDir}">
+              <option value="">-- Thứ tự --</option>
+              <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
+              <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
+            </select>
+          </div>
 
           <input type="hidden" name="page" th:value="${currentPage}" />
           <input type="hidden" name="size" th:value="${sizePerPage}" />
+
           <button type="submit">🔍 Lọc</button>
+          <a th:href="@{/members}" class="search-form button">Xóa lọc</a>
         </form>
       </div>
 
@@ -213,13 +230,33 @@
       <div class="pagination">
         <a
           th:if="${currentPage > 1}"
-          th:href="@{/members(page=${currentPage - 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"
+          th:href="@{/members(
+            page=${currentPage - 1},
+            size=${sizePerPage},
+            name=${#strings.isEmpty(memberFilterCriteriaDTO.name) ? null : memberFilterCriteriaDTO.name},
+            email=${#strings.isEmpty(memberFilterCriteriaDTO.email) ? null : memberFilterCriteriaDTO.email},
+            phone=${#strings.isEmpty(memberFilterCriteriaDTO.phone) ? null : memberFilterCriteriaDTO.phone},
+            membershipType=${memberFilterCriteriaDTO.membershipType == null ? null : memberFilterCriteriaDTO.membershipType},
+            status=${memberFilterCriteriaDTO.status == null ? null : memberFilterCriteriaDTO.status},
+            sortBy=${sortBy},
+            sortDir=${sortDir}
+          )}"
           >⬅️ Trước</a
         >
-        <span>Trang <span th:text="${totalPages == 0 ? 0 : currentPage}">1</span> / <span th:text="${totalPages}">1</span></span>
+        <span>Trang <span th:text="${totalPages == 0 ? 0 : currentPage}"></span> / <span th:text="${totalPages}"></span></span>
         <a
           th:if="${currentPage < totalPages}"
-          th:href="@{/members(page=${currentPage + 1}, size=${sizePerPage}, name=${optionalName}, email=${optionalEmail}, phone=${optionalPhone}, membershipType=${optionalMembershipType}, status=${optionalStatus})}"
+          th:href="@{/members(
+            page=${currentPage + 1},
+            size=${sizePerPage},
+            name=${#strings.isEmpty(memberFilterCriteriaDTO.name) ? null : memberFilterCriteriaDTO.name},
+            email=${#strings.isEmpty(memberFilterCriteriaDTO.email) ? null : memberFilterCriteriaDTO.email},
+            phone=${#strings.isEmpty(memberFilterCriteriaDTO.phone) ? null : memberFilterCriteriaDTO.phone},
+            membershipType=${memberFilterCriteriaDTO.membershipType == null ? null : memberFilterCriteriaDTO.membershipType},
+            status=${memberFilterCriteriaDTO.status == null ? null : memberFilterCriteriaDTO.status},
+            sortBy=${sortBy},
+            sortDir=${sortDir}
+          )}"
           >Tiếp ➡️</a
         >
       </div>
@@ -228,4 +265,18 @@
       <a href="/members/create" class="add-link">➕ Thêm thành viên mới</a>
     </div>
   </body>
+
+  <script>
+    function cleanFormInputs(form) {
+      for (let i = 0; i < form.elements.length; i++) {
+        const element = form.elements[i];
+        // Chỉ xử lý các input type text, select và không phải hidden
+        // hoặc nếu bạn muốn xử lý tất cả trừ hidden, hãy điều chỉnh điều kiện
+        if ((element.type === "text" || element.tagName === "SELECT") && element.value === "") {
+          element.disabled = true; // Vô hiệu hóa để không gửi giá trị này
+        }
+      }
+      return true; // Trả về true để form tiếp tục được gửi
+    }
+  </script>
 </html>

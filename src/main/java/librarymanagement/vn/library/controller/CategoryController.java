@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,11 +32,14 @@ public class CategoryController {
             Model model,
             @RequestParam("page") Optional<Integer> optionalPage,
             @RequestParam("size") Optional<Integer> optionalSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
             @ModelAttribute CategoryFilterCriteriaDTO categoryFilterCriteriaDTO) {
         int page = optionalPage.orElse(1);
         int size = optionalSize.orElse(5);
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size, sort);
         Page<Category> pageCategories;
 
         pageCategories = categoryService.fetchAllCategoriesWithPaginationAndSpecification(categoryFilterCriteriaDTO,
@@ -46,6 +50,8 @@ public class CategoryController {
         model.addAttribute("currentPage", page);
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageCategories.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
 
         return "categories/show";
     }
@@ -103,6 +109,16 @@ public class CategoryController {
     public String deleteCategory(@PathVariable("id") long id) {
         this.categoryService.delete(id);
         return "redirect:/categories";
+    }
+
+    @GetMapping("/categories/detail/{id}")
+    public String getCategoryDetail(@PathVariable("id") long id, Model model) {
+        Optional<Category> optionalCategory = this.categoryService.fetchCategoryById(id);
+        if (optionalCategory.isEmpty()) {
+            return "redirect:/categories";
+        }
+        model.addAttribute("category", optionalCategory.get());
+        return "/categories/detail";
     }
 
 }

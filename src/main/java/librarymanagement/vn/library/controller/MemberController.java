@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
@@ -35,11 +36,15 @@ public class MemberController {
             @RequestParam(value = "page", defaultValue = "1") int page, // Đặt giá trị mặc định là 1 (1-indexed cho
                                                                         // người dùng)
             @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy, // Mặc định sắp xếp theo 'id'
+            @RequestParam(defaultValue = "asc") String sortDir, // Mặc định sắp xếp thèo tăng dần
+
             @ModelAttribute MemberFilterCriteriaDTO memberFilterCriteriaDTO) {
 
         // Chuyển đổi page từ 1-indexed (frontend) sang 0-indexed (Pageable)
         // Đảm bảo page index không bao giờ nhỏ hơn 0
-        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size);
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size, sort);
 
         Page<Member> pageMembers = this.memberService.fetchAllMembersWithPaginationAndSpecification(
                 memberFilterCriteriaDTO, pageable);
@@ -52,6 +57,8 @@ public class MemberController {
         model.addAttribute("currentPage", page); // Hiển thị trang hiện tại (1-indexed)
         model.addAttribute("sizePerPage", size);
         model.addAttribute("totalPages", pageMembers.getTotalPages());
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
 
         // Rất quan trọng: truyền DTO trở lại view để giữ giá trị trong form
         model.addAttribute("memberFilterCriteriaDTO", memberFilterCriteriaDTO);
